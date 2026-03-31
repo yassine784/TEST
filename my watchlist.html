@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>My Private Watchlist</title>
+
+<style>
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Login box */
+#login {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-box {
+    background: #1e293b;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+}
+
+input, select {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 8px;
+    border: none;
+    background: #334155;
+    color: white;
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background: #38bdf8;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+/* App */
+#app {
+    display: none;
+}
+
+/* Title */
+h1 {
+    text-align: center;
+    color: #38bdf8;
+}
+
+/* Form */
+.form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #1e293b;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background: #334155;
+}
+
+tr:nth-child(even) {
+    background: #273449;
+}
+.status-watching {
+    color: #38bdf8;
+}
+
+.status-finished {
+    color: #4ade80; /* green */
+    font-weight: bold;
+}
+
+.status-watching {
+    color: #38bdf8; /* blue */
+}
+
+.status-planned {
+    color: #facc15; /* yellow */
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- 🔐 LOGIN -->
+<div id="login">
+    <div class="login-box">
+        <h2>🔐 Enter Password</h2>
+        <input type="password" id="password" placeholder="Password">
+        <br>
+        <button onclick="checkPassword()">Enter</button>
+        <p id="error" style="color:red;"></p>
+    </div>
+</div>
+
+<!-- 🎬 APP -->
+<div id="app">
+
+<h1>🎬 My Watchlist</h1>
+
+<div class="form">
+    <input type="text" id="title" placeholder="Title">
+    <select id="type">
+        <option>Movie</option>
+        <option>Series</option>
+    </select>
+    <input type="text" id="genre" placeholder="Genre">
+    <input type="text" id="time" placeholder="Watch Time">
+    <input type="text" id="evaluation" placeholder="Evaluation">
+    <input type="date" id="viewing end date" placeholder="Viewing End Date">
+    <select id="status">
+        <option>Watching</option>
+        <option>Finished</option>
+        <option>Planned</option>
+    </select>
+    <button onclick="addItem()">Add</button>
+</div>
+
+<table>
+<thead>
+<tr>
+    <th>Title</th>
+    <th>Type</th>
+    <th>Genre</th>
+    <th>Time</th>
+    <th>Status</th>
+    <th>Evaluation</th>
+    <th>Viewing End Date</th>
+    <th>Action</th>
+
+</tr>
+</thead>
+<tbody id="list"></tbody>
+</table>
+
+</div>
+
+<script>
+
+/* 🔐 LOGIN WITH MULTIPLE PASSWORDS */
+function checkPassword() {
+    const pass = document.getElementById("password").value;
+
+    const validPasswords = [
+        "YJ2026",
+        "Tennis123",
+        "Admin2025",
+        "123",
+        "Admine123"
+    ];
+
+    if (validPasswords.includes(pass)) {
+        document.getElementById("login").style.display = "none";
+        document.getElementById("app").style.display = "block";
+        render();
+    } else {
+        document.getElementById("error").innerText = "Wrong password ❌";
+    }
+}
+
+/* 📦 STORAGE */
+let watchlist = JSON.parse(localStorage.getItem("watchlist")) || [];
+
+function save() {
+    localStorage.setItem("watchlist", JSON.stringify(watchlist));
+}
+
+/* 📋 DISPLAY */
+function render() {
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    watchlist.forEach((item, index) => {
+        list.innerHTML += `
+        <tr>
+            <td>${item.title}</td>
+            <td>${item.type}</td>
+            <td>${item.genre}</td>
+            <td>${item.time}</td>
+            <td class="${getStatusClass(item.status)}">${item.status}</td>
+            <td><button class="delete" onclick="removeItem(${index})">X</button></td>
+        </tr>
+        `;
+    });
+}
+function getStatusClass(status) {
+    if (status === "Finished") return "status-finished";
+    if (status === "Watching") return "status-watching";
+    if (status === "Planned") return "status-planned";
+     return "";
+/* ➕ ADD */
+function addItem() {
+    const item = {
+        title: document.getElementById("title").value,
+        type: document.getElementById("type").value,
+        genre: document.getElementById("genre").value,
+        time: document.getElementById("time").value,
+        status: document.getElementById("status").value
+    };
+
+    }
+    if (!item.title) return;
+
+    watchlist.push(item);
+    save();
+    render();
+}
+
+/* ❌ DELETE */
+function removeItem(index) {
+    watchlist.splice(index, 1);
+    save();
+    render();
+}
+
+</script>
+
+</body>
+</html>
